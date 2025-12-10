@@ -22,5 +22,5 @@ EXPOSE 8080
 # Run as non-root user for security
 USER pwuser
 
-# Start MCP server with HTTP transport
-ENTRYPOINT ["node", "cli.js", "--headless", "--browser", "chromium", "--no-sandbox", "--port", "8080", "--host", "0.0.0.0"]
+# Start MCP server with HTTP transport - ALLOW ALL HOSTS
+ENTRYPOINT ["node", "cli.js", "--headless", "--browser", "chromium", "--no-sandbox", "--port", "8080", "--host", "0.0.0.0", "--allowed-hosts", "*"]
