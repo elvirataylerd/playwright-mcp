@@ -8,7 +8,7 @@ COPY package*.json ./
 # Install ALL dependencies (including playwright)
 RUN npm ci
 
-# Install Chromium browser using the installed playwright
+# Install Chromium browser
 RUN npx playwright install chromium
 
 # Copy application files
@@ -27,5 +27,16 @@ EXPOSE 8080
 # Run as non-root user for security
 USER pwuser
 
-# Start MCP server with HTTP transport
-ENTRYPOINT ["node", "cli.js", "--headless", "--browser", "chromium", "--no-sandbox", "--port", "8080", "--host", "0.0.0.0", "--allowed-hosts", "*"]
+# Start MCP server with full configuration
+ENTRYPOINT ["node", "cli.js", 
+    "--headless", 
+    "--browser", "chromium", 
+    "--no-sandbox", 
+    "--port", "8080", 
+    "--host", "0.0.0.0", 
+    "--allowed-hosts", "*", 
+    "--isolated", 
+    "--caps", "pdf", 
+    "--timeout-navigation", "120000", 
+    "--timeout-action", "30000", 
+    "--ignore-https-errors"]
