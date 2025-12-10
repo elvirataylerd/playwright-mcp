@@ -6,6 +6,9 @@ WORKDIR /app
 COPY package*.json ./
 RUN npm ci --omit=dev
 
+# Install Chromium browser
+RUN npx playwright install chromium
+
 # Copy application files
 COPY cli.js ./
 COPY index.js ./
