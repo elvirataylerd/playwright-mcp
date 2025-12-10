@@ -28,15 +28,4 @@ EXPOSE 8080
 USER pwuser
 
 # Start MCP server with full configuration
-ENTRYPOINT ["node", "cli.js", 
-    "--headless", 
-    "--browser", "chromium", 
-    "--no-sandbox", 
-    "--port", "8080", 
-    "--host", "0.0.0.0", 
-    "--allowed-hosts", "*", 
-    "--isolated", 
-    "--caps", "pdf", 
-    "--timeout-navigation", "120000", 
-    "--timeout-action", "30000", 
-    "--ignore-https-errors"]
+ENTRYPOINT ["node", "cli.js", "--headless", "--browser", "chromium", "--no-sandbox", "--port", "8080", "--host", "0.0.0.0", "--allowed-hosts", "*", "--isolated", "--caps", "pdf", "--timeout-navigation", "120000", "--timeout-action", "30000", "--ignore-https-errors"]
