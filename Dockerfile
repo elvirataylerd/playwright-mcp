@@ -13,22 +13,22 @@ ENV PLAYWRIGHT_BROWSERS_PATH=${PLAYWRIGHT_BROWSERS_PATH}
 # Set the working directory
 WORKDIR /app
 
-RUN --mount=type=cache,target=/root/.npm,sharing=locked,id=npm-cache \
-    --mount=type=bind,source=package.json,target=package.json \
-    --mount=type=bind,source=package-lock.json,target=package-lock.json \
-  npm ci --omit=dev && \
-  # Install system dependencies for playwright
-  npx -y playwright-core install-deps chromium
+RUN --mount=type=cache,target=/root/.npm,sharing=locked,id=npm-cache 
+    --mount=type=bind,source=package.json,target=package.json 
+    --mount=type=bind,source=package-lock.json,target=package-lock.json 
+    npm ci --omit=dev && 
+    # Install system dependencies for playwright
+    npx -y playwright-core install-deps chromium
 
 # ------------------------------
 # Builder
 # ------------------------------
 FROM base AS builder
 
-RUN --mount=type=cache,target=/root/.npm,sharing=locked,id=npm-cache \
-    --mount=type=bind,source=package.json,target=package.json \
-    --mount=type=bind,source=package-lock.json,target=package-lock.json \
-  npm ci
+RUN --mount=type=cache,target=/root/.npm,sharing=locked,id=npm-cache 
+    --mount=type=bind,source=package.json,target=package.json 
+    --mount=type=bind,source=package-lock.json,target=package-lock.json 
+    npm ci
 
 # Copy the rest of the app
 COPY *.json *.js *.ts .
@@ -50,10 +50,15 @@ FROM base
 
 ARG PLAYWRIGHT_BROWSERS_PATH
 ARG USERNAME=node
+
 ENV NODE_ENV=production
 ENV PLAYWRIGHT_MCP_OUTPUT_DIR=/tmp/playwright-output
 
-# Set the correct ownership for the runtime user on production `node_modules`
+# Cloud Run uses PORT 8080 by default
+ENV PORT=8080
+EXPOSE 8080
+
+# Set the correct ownership for the runtime user on production node_modules
 RUN chown -R ${USERNAME}:${USERNAME} node_modules
 
 USER ${USERNAME}
@@ -61,5 +66,5 @@ USER ${USERNAME}
 COPY --from=browser --chown=${USERNAME}:${USERNAME} ${PLAYWRIGHT_BROWSERS_PATH} ${PLAYWRIGHT_BROWSERS_PATH}
 COPY --chown=${USERNAME}:${USERNAME} cli.js package.json ./
 
-# Run in headless and only with chromium (other browsers need more dependencies not included in this image)
-ENTRYPOINT ["node", "cli.js", "--headless", "--browser", "chromium", "--no-sandbox"]
+# Run in headless mode with HTTP/SSE transport for Allmates compatibility
+ENTRYPOINT ["node", "cli.js", "--headless", "--browser", "chromium", "--no-sandbox", "--port", "8080", "--host", "0.0.0.0"]
